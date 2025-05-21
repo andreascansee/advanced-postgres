@@ -9,3 +9,12 @@
 
 \echo '=== 3: Create App User ==='
 \i 3_create_user.sql
+
+\echo '=== 4: Enable RLS ==='
+\i 4_enable_rls.sql
+
+\echo '=== 5: Define Policy ==='
+\i 5_define_policy.sql
+
+\echo '=== 6: Test RLS Behavior ==='
+\i 6_test_rls.sql
