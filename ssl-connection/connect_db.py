@@ -13,6 +13,8 @@ def get_connection():
             dbname=os.getenv("PGDATABASE", "postgres"),
             user=os.getenv("PGUSER", "postgres"),
             password=os.getenv("PGPASSWORD", ""),
+            sslmode='verify-ca',
+            sslrootcert="root.crt"
         )
         return conn
     except OperationalError as e:
