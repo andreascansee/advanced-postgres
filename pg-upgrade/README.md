@@ -24,18 +24,18 @@
 │   ├── 06_insert_tasks.sql
 │   ├── 07_create_roles.sql
 │   └── 08_grant_privileges.sql
+├── scripts/                         # All provisioning, install, seed, cleanup logic
+│   ├── cleanup/
+│   │   └── cleanup.sh              # Stop, delete, and purge the VM
+│   ├── install/
+│   │   ├── install_pg15.sh         # Install PostgreSQL 15 in VM
+│   │   └── install_pg17.sh         # Install PostgreSQL 17 in VM
+│   ├── provision/
+│   │   └── provision_vm_pg15.sh    # Create VM and install PG 15
+│   ├── seed/
+│   │   └── seed_data.sh            # Transfer + run SQL scripts inside VM
+│   └── vm.conf                     # Central VM configuration (name, size)
 ├── README.md                        # Full walkthrough for PostgreSQL upgrade
-└── scripts/
-    ├── cleanup/
-    │   └── cleanup.sh              # Stop, delete, and purge the VM
-    ├── install/
-    │   ├── install_pg15.sh         # Install PostgreSQL 15 in VM
-    │   └── install_pg17.sh         # Install PostgreSQL 17 in VM
-    ├── provision/
-    │   └── provision_vm_pg15.sh    # Create VM and install PG 15
-    ├── seed/
-    │   └── seed_data.sh            # Transfer + run SQL scripts inside VM
-    └── vm.conf                     # Central VM configuration (name, size)
 ```
 
 ## ⚙️ Prerequisites
