@@ -326,9 +326,9 @@ This means you're ready to proceed with the real upgrade.
 >
 > ```bash
 > tail -n 50 /var/lib/postgresql/17/main/pg_upgrade_output.d/*/log/pg_upgrade_server.log
-```
+>```
 
-### 🚀 6.  Perform the Upgrade with `pg_upgrade`
+### 🚀 6. Perform the Upgrade with `pg_upgrade`
 
 You'll now run pg_upgrade for real, this time without the `--check` flag. This step will migrate all data from the PostgreSQL 15 cluster into the new PostgreSQL 17 cluster.
 
