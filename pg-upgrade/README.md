@@ -74,9 +74,9 @@ Then it executes the scripts in order:
 - creating PostgreSQL roles
 - applying permissions
 
-> ℹ️ If you change the database name in [`data/00_init_db.sql`](data/00_init_db.sql), make sure to also update `DB_NAME="appdb"` in [`seed_data.sh`](scripts/seed/seed_data.sh) accordingly.
+> 💡 If you change the database name in [`data/00_init_db.sql`](data/00_init_db.sql), make sure to also update `DB_NAME="appdb"` in [`seed_data.sh`](scripts/seed/seed_data.sh) accordingly.
 
-> ℹ️ Scripts are written to be idempotent and safe to rerun.
+> 💡 Scripts are written to be idempotent and safe to rerun.
 
 ### 🔍 3. Validate and Explore the Setup
 After provisioning and seeding, you can access the VM with:
@@ -116,7 +116,7 @@ bash scripts/cleanup/cleanup.sh
 
 With PostgreSQL 15 installed and seeded inside your VM, it's time to upgrade to PostgreSQL 17 — side-by-side, without touching our original data. This gives us full control and minimizes risk. The upgrade will preserve all data and settings while transitioning to the newer version in a controlled way.
 
-> ℹ️ We'll use PostgreSQL's built-in `pg_upgrade` tool, which is the **recommended and fastest method** to upgrade between major versions when the system layout allows it. 
+> 💡 We'll use PostgreSQL's built-in `pg_upgrade` tool, which is the **recommended and fastest method** to upgrade between major versions when the system layout allows it. 
 >
 > Unlike dump/restore methods, `pg_upgrade` copies internal catalogs and user data files directly — dramatically reducing downtime for large databases.
 
@@ -157,7 +157,7 @@ This script:
 - Installs PostgreSQL 17
 - Verifies that the new cluster is created with `pg_lsclusters`
 
-> ℹ️ If you want to upgrade to a different version, adjust the [script](scripts/install/install_pg17.sh) accordingly.
+> 💡 If you want to upgrade to a different version, adjust the [script](scripts/install/install_pg17.sh) accordingly.
 
 #### 🔍 Step 1.3: Verify that PostgreSQL 17 is installed
 
@@ -303,7 +303,7 @@ Run the following inside the VM as the postgres user (`sudo -i -u postgres`):
   --new-port=5433 \
   --check
 ```
-> 🧠 `pg_upgrade` requires both data directories and binary paths to properly compare internal formats and version metadata.
+> 💡 `pg_upgrade` requires both data directories and binary paths to properly compare internal formats and version metadata.
 The port flags help prevent socket conflicts between clusters.
 
 If everything is set up correctly, you should see this line at the end:
@@ -458,7 +458,7 @@ To avoid poor performance after upgrade, run:
 
 This staged approach analyzes the smallest tables first and ramps up gradually — minimizing the load on your new cluster during initial warm-up.
 
-> ℹ️ You can also use `--analyze-only` later, or schedule full `ANALYZE` runs during off-peak hours.
+> 💡 You can also use `--analyze-only` later, or schedule full `ANALYZE` runs during off-peak hours.
 
 
 ### ✅ Use `--link` Mode to Avoid Full Data Copy
