@@ -213,8 +213,8 @@ pg_lsclusters
 ```
 
 You should see output that confirms:
-- ✅ PostgreSQL 15 is up and running 🟢
-- ✅ PostgreSQL 17 has been created but is stopped 🔴
+- ✅ PostgreSQL 15 is up and running (`online`) 🟢
+- ✅ PostgreSQL 17 has been created but is stopped (`down`) 🔴
 
 > ⚠️ Do not yet start the 17 cluster — `pg_upgrade` requires it to be offline.
 
@@ -245,7 +245,7 @@ This copies the following configuration files in both cluster's data directories
 - `conf.d/` – Optional include directory
 - `environment` – Optional file for setting environment variables at startup
 
-> ⚠️ `**Important:**` Even if `conf.d/` is empty, it must be copied as well! If this directory is missing, PostgreSQL will fail to start due to the line `include_dir = 'conf.d'` in `postgresql.conf`.
+> ⚠️ **Important:** Even if `conf.d/` is empty, it must be copied as well! If this directory is missing, PostgreSQL will fail to start due to the line `include_dir = 'conf.d'` in `postgresql.conf`.
 > You could comment out that line, but this is **not recommended** — it changes the default behavior, which may confuse future tooling or upgrades.
 
 #### 🔐 Step 3.2: Set correct ownership and permissions
