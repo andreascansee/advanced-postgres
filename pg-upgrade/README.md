@@ -13,13 +13,29 @@
 ## 🧰 Project Structure
 
 ```
-scripts/
-├── install/ # PostgreSQL installation scripts (15 and 17)
-├── provision/ # VM provisioning script
-├── seed/ # Data initialization + role + grant scripts
-├── cleanup.sh # Stop, delete, and purge the VM
-data/ # Ordered .sql files to define schema and seed data
-vm.conf # Central config for VM
+.
+├── data/                            # Ordered .sql files for schema and seed data
+│   ├── 00_init_db.sql
+│   ├── 01_create_schema.sql
+│   ├── 02_insert_users.sql
+│   ├── 03_insert_organizations.sql
+│   ├── 04_insert_memberships.sql
+│   ├── 05_insert_projects.sql
+│   ├── 06_insert_tasks.sql
+│   ├── 07_create_roles.sql
+│   └── 08_grant_privileges.sql
+├── README.md                        # Full walkthrough for PostgreSQL upgrade
+└── scripts/
+    ├── cleanup/
+    │   └── cleanup.sh              # Stop, delete, and purge the VM
+    ├── install/
+    │   ├── install_pg15.sh         # Install PostgreSQL 15 in VM
+    │   └── install_pg17.sh         # Install PostgreSQL 17 in VM
+    ├── provision/
+    │   └── provision_vm_pg15.sh    # Create VM and install PG 15
+    ├── seed/
+    │   └── seed_data.sh            # Transfer + run SQL scripts inside VM
+    └── vm.conf                     # Central VM configuration (name, size)
 ```
 
 ## ⚙️ Prerequisites
