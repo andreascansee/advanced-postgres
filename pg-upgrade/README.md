@@ -14,7 +14,7 @@
 
 ```
 .
-├── data/                            # Ordered .sql files for schema and seed data
+├── data/                           # Ordered .sql files for schema and seed data
 │   ├── 00_init_db.sql
 │   ├── 01_create_schema.sql
 │   ├── 02_insert_users.sql
@@ -24,7 +24,7 @@
 │   ├── 06_insert_tasks.sql
 │   ├── 07_create_roles.sql
 │   └── 08_grant_privileges.sql
-├── scripts/                         # All provisioning, install, seed, cleanup logic
+├── scripts/                        # All provisioning, install, seed, cleanup logic
 │   ├── cleanup/
 │   │   └── cleanup.sh              # Stop, delete, and purge the VM
 │   ├── install/
@@ -35,7 +35,7 @@
 │   ├── seed/
 │   │   └── seed_data.sh            # Transfer + run SQL scripts inside VM
 │   └── vm.conf                     # Central VM configuration (name, size)
-├── README.md                        # Full walkthrough for PostgreSQL upgrade
+├── README.md                       # Full walkthrough for PostgreSQL upgrade
 ```
 
 ## ⚙️ Prerequisites
@@ -48,7 +48,7 @@ In this section, you'll configure PostgreSQL inside a Multipass Ubuntu VM to sim
 
 You'll also populate a test database with structured sample data to simulate a real-world application, including users, organizations, projects, and tasks. All setup steps are fully scripted and idempotent, so you can re-run them safely at any time.
 
-### 🚀 1. Provision the PostgreSQL 15 VM
+### ⚡️ 1. Provision the PostgreSQL 15 VM
 
 This creates a VM, installs PostgreSQL 15, and prepares it for upgrade:
 
@@ -78,7 +78,7 @@ Then it executes the scripts in order:
 
 > ℹ️ Scripts are written to be idempotent and safe to rerun.
 
-### ✅ 3. Validate and Explore the Setup
+### 🔍 3. Validate and Explore the Setup
 After provisioning and seeding, you can access the VM with:
 
 ```bash
