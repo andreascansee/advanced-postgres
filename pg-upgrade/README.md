@@ -74,7 +74,7 @@ Then it executes the scripts in order:
 - creating PostgreSQL roles
 - applying permissions
 
-> 💡 If you change the database name in [`data/00_init_db.sql`](data/00_init_db.sql), make sure to also update `DB_NAME="appdb"` in [`seed_data.sh`](scripts/seed/seed_data.sh) accordingly.
+> ⚠️ If you change the database name in [`data/00_init_db.sql`](data/00_init_db.sql), make sure to also update `DB_NAME="appdb"` in [`seed_data.sh`](scripts/seed/seed_data.sh) accordingly.
 
 > 💡 Scripts are written to be idempotent and safe to rerun.
 
@@ -157,7 +157,7 @@ This script:
 - Installs PostgreSQL 17
 - Verifies that the new cluster is created with `pg_lsclusters`
 
-> 💡 If you want to upgrade to a different version, adjust the [script](scripts/install/install_pg17.sh) accordingly.
+> ⚠️ If you want to upgrade to a different version, adjust the [script](scripts/install/install_pg17.sh) accordingly.
 
 #### 🔍 Step 1.3: Verify that PostgreSQL 17 is installed
 
@@ -314,7 +314,7 @@ If everything is set up correctly, you should see this line at the end:
 
 This means you're ready to proceed with the real upgrade.
 
-> 💡 **Troubleshooting Tip**
+> 💡 **Troubleshooting Tisp**
 >
 > `pg_upgrade` uses Unix domain sockets to temporarily start both clusters during the check.  
 > If you see errors like `could not open configuration directory` or `socket connection failed`, you likely need to ensure the socket base is owned by `postgres`:
@@ -322,7 +322,7 @@ This means you're ready to proceed with the real upgrade.
 > ```bash
 > sudo chown -R postgres:postgres /var/lib/postgresql
 > ```
-> You can inspect the most recent upgrade attempt log like this:
+> You can inspect the most recent failed upgrade attempt log like this:
 >
 > ```bash
 > tail -n 50 /var/lib/postgresql/17/main/pg_upgrade_output.d/*/log/pg_upgrade_server.log
