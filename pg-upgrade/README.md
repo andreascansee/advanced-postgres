@@ -285,8 +285,6 @@ pg_lsclusters
 
 You should now see both clusters listed with `Status: down`. This ensures that `pg_upgrade` can safely take over and start both clusters under its own control.
 
----
-
 ### 🧪 5. Run a Compatibility Check (`pg_upgrade --check`)
 
 Before performing the actual upgrade, it's crucial to verify that your PostgreSQL 15 cluster is compatible with PostgreSQL 17.
@@ -354,8 +352,6 @@ Upgrade Complete
 
 At this point, PostgreSQL 17 has successfully taken over your data! 🎉
 
----
-
 ### 🟢 7. Start and Verify the New Cluster
 
 After the upgrade, the new PostgreSQL 17 cluster is not automatically started. You need to do it manually (as the `ubuntu` user):
@@ -389,8 +385,6 @@ SELECT version();   -- should show PostgreSQL 17.x
 ```
 
 You should see all your original data, schema, and roles — now running under PostgreSQL 17.
-
----
 
 ### 🧼 8. Clean Up (optional)
 
