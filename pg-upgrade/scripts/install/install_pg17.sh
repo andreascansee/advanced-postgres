@@ -11,6 +11,9 @@ CODENAME=$(lsb_release -cs)
 echo "Using distribution codename: $CODENAME"
 echo "deb http://apt.postgresql.org/pub/repos/apt ${CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
 
+echo "==> Removing existing PostgreSQL GPG key (if any)..."
+sudo rm -f /etc/apt/trusted.gpg.d/postgresql.gpg
+
 echo "==> Importing PostgreSQL signing key..."
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
 

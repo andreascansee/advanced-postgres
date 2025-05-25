@@ -87,7 +87,7 @@ multipass shell pg-upgrade   # multipass shell <vm-name>
 
 To interact with the database, switch to a shell as the `postgres` user and launch `psql`:
 
-```
+```bash
 sudo -i -u postgres
 psql
 ```
@@ -109,7 +109,7 @@ SELECT ...; -- run your queries
 Later, you can stop and delete the VM with:
 
 ```bash
-bash scripts/cleanup.sh
+bash scripts/cleanup/cleanup.sh
 ```
 
 ## 🔁 Performing the Upgrade
@@ -159,7 +159,7 @@ This script:
 
 > ℹ️ If you want to upgrade to a different version, adjust the [script](scripts/install/install_pg17.sh) accordingly.
 
-#### ✅ Step 1.3: Verify that PostgreSQL 17 is installed
+#### 🔍 Step 1.3: Verify that PostgreSQL 17 is installed
 
 Even if the installation was successful, `pg_lsclusters` won't list PostgreSQL 17 yet, because no cluster for version 17 has been created at this point.
 
@@ -176,7 +176,8 @@ ls /usr/lib/postgresql/
 You should see two separate directories for `15` and `17`.
 
 Next, check the default `psql` client version:
-```
+
+```sql
 psql --version
 ```
 You should see something that includes `17`, confirming that the `psql` binary from version `17` is now the default.
@@ -193,13 +194,11 @@ SELECT version();
 
 This should return something like: `PostgreSQL 15.x [...]`. This confirms that you're still connected to the PostgreSQL 15 cluster — which is expected for now.
 
----
-
 ### ⚙️ 2. Create an Empty PostgreSQL 17 Cluster
 
 At this point, PostgreSQL 17 is installed, but no data directory (cluster) exists for it yet.
 
-To create a new empty cluster for PostgreSQL 17, run the following inside the VM (as the Ubuntu user):
+To create a new empty cluster for PostgreSQL 17, run the following inside the VM (as the `ubuntu` user):
 
 ```bash
 sudo pg_createcluster 17 main
@@ -217,25 +216,27 @@ You should see output that confirms:
 - ✅ PostgreSQL 15 is up and running 🟢
 - ✅ PostgreSQL 17 has been created but is stopped 🔴
 
-> ⚠️ Do not start the 17 cluster — `pg_upgrade` requires it to be offline.
+> ⚠️ Do not yet start the 17 cluster — `pg_upgrade` requires it to be offline.
 
----
 
 ### 🩺 3. Fix Debian-Specific Configuration Layout
 
 On Debian-based systems (like Ubuntu), PostgreSQL stores its configuration files under `/etc/postgresql/...`, separate from the actual data directory.  
+
 However, `pg_upgrade` expects all relevant config files to live **inside the cluster's data directory** (e.g., `/var/lib/postgresql/<version>/main/`).  
 
-We need to manually align the layout so `pg_upgrade` can find and use the right configs.
+his means we need to manually copy the necessary files into the correct location.
+
+#### 📦 Step 3.1: Copy config files into the data directories
 
 Run these commands inside the VM as the `ubuntu user`:
 
 ```bash
-sudo cp /etc/postgresql/15/main/*.conf /var/lib/postgresql/15/main/
-sudo cp /etc/postgresql/17/main/*.conf /var/lib/postgresql/17/main/
+sudo cp -a /etc/postgresql/15/main/. /var/lib/postgresql/15/main/
+sudo cp -a /etc/postgresql/17/main/. /var/lib/postgresql/17/main/
 ```
 
-This copies the following configuration files into the respective data directories:
+This copies the following configuration files in both cluster's data directories:
 
 - `postgresql.conf` – Main server configuration
 - `pg_hba.conf` – Authentication rules
@@ -244,11 +245,25 @@ This copies the following configuration files into the respective data directori
 - `conf.d/` – Optional include directory
 - `environment` – Optional file for setting environment variables at startup
 
-> 💡 Important:
-> Even if `conf.d/` is empty, it must be copied as well! If this directory is missing, PostgreSQL will fail to start due to the line `include_dir = 'conf.d'` in `postgresql.conf`.
+> ⚠️ `**Important:**` Even if `conf.d/` is empty, it must be copied as well! If this directory is missing, PostgreSQL will fail to start due to the line `include_dir = 'conf.d'` in `postgresql.conf`.
 > You could comment out that line, but this is **not recommended** — it changes the default behavior, which may confuse future tooling or upgrades.
 
----
+#### 🔐 Step 3.2: Set correct ownership and permissions
+
+Once the configs are copied, you **must** set ownership and restrictive permissions on the data directories. PostgreSQL enforces this strictly to protect data integrity and security.
+
+Run:
+
+```bash
+sudo chown -R postgres:postgres /var/lib/postgresql/15/main
+sudo chmod 700 /var/lib/postgresql/15/main
+
+sudo chown -R postgres:postgres /var/lib/postgresql/17/main
+sudo chmod 700 /var/lib/postgresql/17/main
+```
+> **💡 Why this matters:**
+> - **Ownership** (`chown`): PostgreSQL processes run as the postgres user. If any file or directory is owned by root or another user, the server may be unable to read or write them — or may fail to start entirely.
+> - **Permissions** (`chmod`): PostgreSQL refuses to start if the data directory is too permissive (e.g., world-readable). It explicitly checks that permissions are `0700` (`drwx------`) or at most `0750`. Anything broader will result in errors. 💥
 
 ### 🔻 4. Shut Down All PostgreSQL Clusters
 
@@ -272,7 +287,7 @@ You should now see both clusters listed with `Status: down`. This ensures that `
 
 ---
 
-### 🧪 4. Run a Compatibility Check (`pg_upgrade --check`)
+### 🧪 5. Run a Compatibility Check (`pg_upgrade --check`)
 
 Before performing the actual upgrade, it's crucial to verify that your PostgreSQL 15 cluster is compatible with PostgreSQL 17.
 
@@ -309,10 +324,13 @@ This means you're ready to proceed with the real upgrade.
 > ```bash
 > sudo chown -R postgres:postgres /var/lib/postgresql
 > ```
+> You can inspect the most recent upgrade attempt log like this:
+>
+> ```bash
+> tail -n 50 /var/lib/postgresql/17/main/pg_upgrade_output.d/*/log/pg_upgrade_server.log
+```
 
----
-
-### 🚀 5.  Perform the Upgrade with `pg_upgrade`
+### 🚀 6.  Perform the Upgrade with `pg_upgrade`
 
 You'll now run pg_upgrade for real, this time without the `--check` flag. This step will migrate all data from the PostgreSQL 15 cluster into the new PostgreSQL 17 cluster.
 
@@ -338,12 +356,24 @@ At this point, PostgreSQL 17 has successfully taken over your data! 🎉
 
 ---
 
-### 🟢 6. Verify the New Cluster
+### 🟢 7. Start and Verify the New Cluster
 
-To confirm that PostgreSQL 17 is working as expected, connect to the new cluster on port `5433`:
+After the upgrade, the new PostgreSQL 17 cluster is not automatically started. You need to do it manually (as the `ubuntu` user):
 
 ```bash
-sudo -u postgres psql -p 5433
+sudo systemctl start postgresql@17-main
+```
+
+Check its status:
+
+```bash
+sudo systemctl status postgresql@17-main
+```
+
+To confirm that PostgreSQL 17 is working as expected, connect to the new cluster on port `5433`:
+```bash
+sudo -i -u postgres
+psql -p 5433
 ```
 
 Then run some checks:
@@ -362,9 +392,9 @@ You should see all your original data, schema, and roles — now running under P
 
 ---
 
-### 🧼 7. Clean Up (optional)
+### 🧼 8. Clean Up (optional)
 
-#### 🗑️ Step 7.1: Delete the Old Cluster
+#### 🗑️ Step 8.1: Delete the Old Cluster
 
 After verifying everything works, you can delete the old PostgreSQL 15 data directory.
 `pg_upgrade` generated a script to help with that:
@@ -383,7 +413,7 @@ sudo rm -rf /etc/postgresql/15/main
 ```
 > ⚠️ Only delete the old cluster **after** verifying the new one works!
 
-#### 🔁 Step 7.2: Switch Back to Port 5432
+#### 🔁 Step 8.2: Switch Back to Port 5432
 
 After the upgrade, the new PostgreSQL 17 cluster is still running on port `5433`.  
 To make it the default again (on port `5432`), update its configuration.
@@ -423,6 +453,20 @@ You should now see that the PostgreSQL 17 cluster is online on port 5432.
 
 While this guide focused on a manual side-by-side upgrade using `pg_upgrade`, here are a few important strategies to reduce downtime and improve upgrade safety in real-world scenarios:
 
+### ✅ Refresh Optimizer Statistics After Upgrade
+`pg_upgrade` does **not** transfer query planner statistics (like table sizes, row estimates, index usage).
+
+To avoid poor performance after upgrade, run:
+
+```bash
+/usr/lib/postgresql/17/bin/vacuumdb --all --analyze-in-stages
+```
+
+This staged approach analyzes the smallest tables first and ramps up gradually — minimizing the load on your new cluster during initial warm-up.
+
+> ℹ️ You can also use `--analyze-only` later, or schedule full `ANALYZE` runs during off-peak hours.
+
+
 ### ✅ Use `--link` Mode to Avoid Full Data Copy
 By default, `pg_upgrade` copies the entire data directory. For large databases, this takes time and disk space.  
 Using `--link` avoids that by creating hard links instead:
@@ -432,21 +476,13 @@ pg_upgrade ... --link
 ```
 > ⚠️ Be careful: this links both clusters to the same files. You must not use the old cluster afterward. Always take a backup first.
 
-### ✅ Run pg_upgrade on a Standby First
+### ✅ Run `pg_upgrade` on a Standby First
 If you're using streaming replication, you can:
 - Stop the replica
 - Upgrade it using `pg_upgrade`
 - Promote it to primary after testing
 
 This avoids downtime on the live server and allows a safe switchover.
-
-### ✅ Pre-Warm the New Cluster
-After upgrade, all PostgreSQL caches are cold. Consider warming up by:
-- Running common queries
-- Replaying some traffic in staging
-- Running `pgbench` or scripted tests
-
-This helps ensure consistent performance after going live.
 
 ### ✅ Plan for Schema Changes Separately
 
